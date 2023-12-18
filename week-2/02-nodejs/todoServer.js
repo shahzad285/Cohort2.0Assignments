@@ -39,11 +39,84 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require('express');
+const fs = require('fs');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.listen(3000);
+app.use(express.json());
+app.use(bodyParser.json());
+
+module.exports = app;
+
+app.get('/todos', function (req, res) {
+  if (!fs.existsSync('./files/todos.txt')) {
+    fs.writeFile('./files/todos.txt', '', function (err) {
+      if (err) throw err;
+    });
+  }
+  fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
+    console.log(data);
+    res.json(data);
+  });
+})
+
+app.get('/todos/:id', function (req, res) {
+  if (!fs.existsSync('./files/todos.txt')) {
+    fs.writeFile('./files/todos.txt', '', function (err) {
+      if (err) throw err;
+      console.log('File created');
+    });
+  }
+  fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
+    var obj = JSON.parse(data);
+    obj.forEach(element => {
+      if (element.id == id) {
+        res.status(200).json(element);
+        return;
+      }
+    });
+    res.status(404).send('Not found');
+
+  });
+})
+
+app.put('/todos/:id', function (req, res) {
+  if (!fs.existsSync('./files/todos.txt')) {
+    fs.writeFile('./files/todos.txt', '', function (err) {
+      if (err) throw err;
+      console.log('File created');
+    });
+  }
+  fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
+    console.log(data);
+    res.end(data);
+  });
+})
+
+app.post('/todos', function (req, res) {
+  if (!fs.existsSync('./files/todos.txt')) {
+    fs.writeFile('./files/todos.txt', '', function (err) {
+      if (err) throw err;
+      console.log('File created');
+    });
+  }
+  fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
+    console.log(data);
+    res.end(data);
+  });
+})
+
+app.delete('/todos/:id', function (req, res) {
+  if (!fs.existsSync('./files/todos.txt')) {
+    fs.writeFile('./files/todos.txt', '', function (err) {
+      if (err) throw err;
+      console.log('File created');
+    });
+  }
+  fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
+    console.log(data);
+    res.end(data);
+  });
+})
