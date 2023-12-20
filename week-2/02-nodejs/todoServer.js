@@ -63,6 +63,7 @@ app.get('/todos', function (req, res) {
 })
 
 app.get('/todos/:id', function (req, res) {
+
   if (!fs.existsSync('./files/todos.txt')) {
     fs.writeFile('./files/todos.txt', '', function (err) {
       if (err) throw err;
@@ -70,31 +71,23 @@ app.get('/todos/:id', function (req, res) {
     });
   }
   fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
-    var obj = JSON.parse(data);
-    obj.forEach(element => {
-      if (element.id == id) {
-        res.status(200).json(element);
-        return;
-      }
-    });
-    res.status(404).send('Not found');
-
+    try {
+      var obj = JSON.parse(data);
+      const id = req.params.id;
+      obj.forEach(element => {
+        if (element.id == id) {
+          res.status(200).json(element);
+        }
+      });
+      res.status(404).send('Not found');
+    }
+    catch (error) {
+      console.error('Error parsing JSON:', error.message);
+      res.status(500).send('Something went wrong please try again after sometime')
+    }
   });
 })
-
-app.put('/todos/:id', function (req, res) {
-  if (!fs.existsSync('./files/todos.txt')) {
-    fs.writeFile('./files/todos.txt', '', function (err) {
-      if (err) throw err;
-      console.log('File created');
-    });
-  }
-  fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
-    console.log(data);
-    res.end(data);
-  });
-})
-
+  
 app.post('/todos', function (req, res) {
   if (!fs.existsSync('./files/todos.txt')) {
     fs.writeFile('./files/todos.txt', '', function (err) {
@@ -108,15 +101,108 @@ app.post('/todos', function (req, res) {
   });
 })
 
-app.delete('/todos/:id', function (req, res) {
+app.delete('/todos/:id',async function (req, res) {
+  let index = -1;
   if (!fs.existsSync('./files/todos.txt')) {
-    fs.writeFile('./files/todos.txt', '', function (err) {
-      if (err) throw err;
+    try {
+      fs.writeFileSync('./files/todos.txt', '');
       console.log('File created');
-    });
+    } catch (err) {
+      console.error('Error creating file:', err);
+    }
   }
-  fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
-    console.log(data);
-    res.end(data);
-  });
+  try {
+    const data = await readFile('./files/todos.txt');
+    var obj = JSON.parse(data);
+    const id = req.params.id;
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i].id == id) {
+        index = i;
+        break;
+      }
+    }
+    if (index>-1) {
+      try {
+        obj.splice(index,1)
+        await writeFile('./files/todos.txt', JSON.stringify(obj));
+        console.log('Data removed');
+        res.status(200).send('Data removed');
+      } catch (err) {
+        console.error('Error writing to file:', err);
+        res.status(500).send('Internal Server Error');
+      }
+    } else {
+      res.status(404).send('Not found');
+    }
+  } catch (error) {
+    console.error('Error reading file or parsing JSON:', error.message);
+    res.status(500).send('Internal Server Error');
+  }
 })
+
+app.put('/todos/:id', async function (req, res) {
+  let dataFound = false;
+  if (!fs.existsSync('./files/todos.txt')) {
+    try {
+      fs.writeFileSync('./files/todos.txt', '');
+      console.log('File created');
+    } catch (err) {
+      console.error('Error creating file:', err);
+    }
+  }
+  try {
+    const data = await readFile('./files/todos.txt');
+    var obj = JSON.parse(data);
+    const id = req.params.id;
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i].id == id) {
+        const body = req.body;
+        obj[i].title = body.title;
+        obj[i].description = body.description;
+        obj[i].completed = body.completed;
+        dataFound = true;
+        break;
+      }
+    }
+    if (dataFound) {
+      try {
+        await writeFile('./files/todos.txt', JSON.stringify(obj));
+        console.log('Data updated');
+        res.status(200).send('Data updated');
+      } catch (err) {
+        console.error('Error writing to file:', err);
+        res.status(500).send('Internal Server Error');
+      }
+    } else {
+      res.status(404).send('Not found');
+    }
+  } catch (error) {
+    console.error('Error reading file or parsing JSON:', error.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+async function readFile(srcPath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(srcPath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
+async function writeFile(savPath, data) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(savPath, data, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
