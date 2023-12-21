@@ -87,21 +87,44 @@ app.get('/todos/:id', function (req, res) {
     }
   });
 })
-  
-app.post('/todos', function (req, res) {
-  if (!fs.existsSync('./files/todos.txt')) {
-    fs.writeFile('./files/todos.txt', '', function (err) {
-      if (err) throw err;
-      console.log('File created');
-    });
-  }
-  fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
-    console.log(data);
-    res.end(data);
-  });
-})
 
-app.delete('/todos/:id',async function (req, res) {
+app.post('/todos', async function (req, res) {
+  if (!fs.existsSync('./files/todos.txt')) {
+    try {
+      fs.writeFileSync('./files/todos.txt', '');
+      console.log('File created');
+    } catch (err) {
+      console.error('Error creating file:', err);
+    }
+  }
+  try {
+    const data = await readFile('./files/todos.txt');
+    var obj = JSON.parse(data);
+    let lId = 0;
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i].id > lId) {
+        lId = obj[i].id;
+      }
+    }
+    lId = ++lId;
+    var bd = req.body;
+    bd.id = lId;
+    obj.push(bd);
+    try {
+      await writeFile('./files/todos.txt', JSON.stringify(obj));
+      console.log('Data updated');
+      res.status(201).send('Data added');
+    } catch (err) {
+      console.error('Error writing to file:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  } catch (error) {
+    console.error('Error reading file or parsing JSON:', error.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.delete('/todos/:id', async function (req, res) {
   let index = -1;
   if (!fs.existsSync('./files/todos.txt')) {
     try {
@@ -121,9 +144,9 @@ app.delete('/todos/:id',async function (req, res) {
         break;
       }
     }
-    if (index>-1) {
+    if (index > -1) {
       try {
-        obj.splice(index,1)
+        obj.splice(index, 1)
         await writeFile('./files/todos.txt', JSON.stringify(obj));
         console.log('Data removed');
         res.status(200).send('Data removed');
