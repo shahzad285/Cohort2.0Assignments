@@ -44,61 +44,44 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.listen(3000);
-app.use(express.json());
+//app.listen(3000);
+//app.use(express.json());
 app.use(bodyParser.json());
 
-module.exports = app;
-
 app.get('/todos', function (req, res) {
-  if (!fs.existsSync('./files/todos.txt')) {
-    fs.writeFile('./files/todos.txt', '', function (err) {
-      if (err) throw err;
-    });
-  }
-  fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
-    console.log(data);
-    res.json(data);
+
+  fs.readFile("todos.json", "utf8", function (err, data) {
+    if (err) throw err;
+    res.json(JSON.parse(data));
   });
 })
 
-app.get('/todos/:id', function (req, res) {
+app.get('/todos/:id', async function (req, res) {
 
-  if (!fs.existsSync('./files/todos.txt')) {
-    fs.writeFile('./files/todos.txt', '', function (err) {
-      if (err) throw err;
-      console.log('File created');
+  const data = await readFile('todos.json');
+  try {
+    var obj = JSON.parse(data);
+    let dt = null;
+    const id = req.params.id;
+    obj.forEach(element => {
+      if (element.id == id) {
+        dt = element;
+      }
     });
-  }
-  fs.readFile('./files/todos.txt', 'utf8', function (err, data) {
-    try {
-      var obj = JSON.parse(data);
-      const id = req.params.id;
-      obj.forEach(element => {
-        if (element.id == id) {
-          res.status(200).json(element);
-        }
-      });
+    if (dt == null)
       res.status(404).send('Not found');
-    }
-    catch (error) {
-      console.error('Error parsing JSON:', error.message);
-      res.status(500).send('Something went wrong please try again after sometime')
-    }
-  });
-})
+    else
+      res.status(200).json(dt);
+  }
+  catch (error) {
+    res.status(500).send('Something went wrong please try again after sometime')
+  }
+});
 
 app.post('/todos', async function (req, res) {
-  if (!fs.existsSync('./files/todos.txt')) {
-    try {
-      fs.writeFileSync('./files/todos.txt', '');
-      console.log('File created');
-    } catch (err) {
-      console.error('Error creating file:', err);
-    }
-  }
+
   try {
-    const data = await readFile('./files/todos.txt');
+    const data = await readFile('todos.json');
     var obj = JSON.parse(data);
     let lId = 0;
     for (let i = 0; i < obj.length; i++) {
@@ -111,11 +94,9 @@ app.post('/todos', async function (req, res) {
     bd.id = lId;
     obj.push(bd);
     try {
-      await writeFile('./files/todos.txt', JSON.stringify(obj));
-      console.log('Data updated');
-      res.status(201).send('Data added');
+      await writeFile('todos.json', JSON.stringify(obj));
+      res.status(201).json(bd);
     } catch (err) {
-      console.error('Error writing to file:', err);
       res.status(500).send('Internal Server Error');
     }
   } catch (error) {
@@ -126,16 +107,9 @@ app.post('/todos', async function (req, res) {
 
 app.delete('/todos/:id', async function (req, res) {
   let index = -1;
-  if (!fs.existsSync('./files/todos.txt')) {
-    try {
-      fs.writeFileSync('./files/todos.txt', '');
-      console.log('File created');
-    } catch (err) {
-      console.error('Error creating file:', err);
-    }
-  }
+
   try {
-    const data = await readFile('./files/todos.txt');
+    const data = await readFile('todos.json');
     var obj = JSON.parse(data);
     const id = req.params.id;
     for (let i = 0; i < obj.length; i++) {
@@ -147,11 +121,9 @@ app.delete('/todos/:id', async function (req, res) {
     if (index > -1) {
       try {
         obj.splice(index, 1)
-        await writeFile('./files/todos.txt', JSON.stringify(obj));
-        console.log('Data removed');
+        await writeFile('todos.json', JSON.stringify(obj));
         res.status(200).send('Data removed');
       } catch (err) {
-        console.error('Error writing to file:', err);
         res.status(500).send('Internal Server Error');
       }
     } else {
@@ -165,16 +137,9 @@ app.delete('/todos/:id', async function (req, res) {
 
 app.put('/todos/:id', async function (req, res) {
   let dataFound = false;
-  if (!fs.existsSync('./files/todos.txt')) {
-    try {
-      fs.writeFileSync('./files/todos.txt', '');
-      console.log('File created');
-    } catch (err) {
-      console.error('Error creating file:', err);
-    }
-  }
+
   try {
-    const data = await readFile('./files/todos.txt');
+    const data = await readFile('todos.json');
     var obj = JSON.parse(data);
     const id = req.params.id;
     for (let i = 0; i < obj.length; i++) {
@@ -189,11 +154,9 @@ app.put('/todos/:id', async function (req, res) {
     }
     if (dataFound) {
       try {
-        await writeFile('./files/todos.txt', JSON.stringify(obj));
-        console.log('Data updated');
+        await writeFile('todos.json', JSON.stringify(obj));
         res.status(200).send('Data updated');
       } catch (err) {
-        console.error('Error writing to file:', err);
         res.status(500).send('Internal Server Error');
       }
     } else {
@@ -229,3 +192,5 @@ async function writeFile(savPath, data) {
     });
   });
 }
+
+module.exports = app;

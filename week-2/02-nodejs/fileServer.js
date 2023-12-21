@@ -16,6 +16,41 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+//app.listen(3000);
+
+const bodyParser = require('body-parser');
+
+app.get('/files', function (req, res) {
+  try {
+    fs.readdir("./files", "utf8", function (err, files) {
+      if (err) throw err;
+      res.status(200).json(files);
+    });
+  } catch (err) {
+    res.status(500).send('Something went wrong');
+  }
+})
+
+app.get('/file/:filename', async function (req, res) {
+
+  try {
+
+    const filename = req.params.filename;
+    fs.readFile("./files/" + req.params.filename, "utf8", function (err, data) {
+      if (err) 
+      res.status(404).send('File not found');
+      res.status(200).send(data);
+    });
+  }
+
+  catch (error) {
+    res.status(500).send('Something went wrong please try again after sometime')
+  }
+});
+
+app.all('*', function(req, res){
+  res.status(404).send('Route not found');
+});
 
 
 module.exports = app;
