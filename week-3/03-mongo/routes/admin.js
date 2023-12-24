@@ -3,7 +3,7 @@ const adminMiddleware = require("../middleware/admin");
 const app = Router();
 
 // Admin Routes
-app.post('/signup', (req, res) => {
+router.post('/signup', (req, res) => {
     // Implement admin signup logic
     var un = req.body.username;
     var pwd = req.body.password;
@@ -15,12 +15,12 @@ app.post('/signup', (req, res) => {
     res.json({ message: 'Admin created successfully' });
 });
 
-app.post('/courses', adminMiddleware, (req, res) => {
+router.post('/courses', adminMiddleware, (req, res) => {
     // Implement course creation logic
 
 });
 
-app.get('/courses', adminMiddleware, (req, res) => {
+router.get('/courses', adminMiddleware, (req, res) => {
     // Implement fetching all courses logic
 });
 
