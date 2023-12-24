@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const router = Router();
+const app = Router();
 const userMiddleware = require("../middleware/user");
 
 // User Routes
@@ -18,3 +18,4 @@ app.post('/courses/:courseId', userMiddleware, (req, res) => {
 app.get('/purchasedCourses', userMiddleware, (req, res) => {
     // Implement fetching purchased courses logic
 });
+module.exports = app;
