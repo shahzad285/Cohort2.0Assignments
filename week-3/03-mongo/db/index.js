@@ -11,9 +11,17 @@ const AdminSchema = new mongoose.Schema({
 
 });
 
+const PurchasedCourseSchema = new mongoose.Schema({
+    // Schema definition here
+    username: String,
+    courseId: Number
+
+});
+
+
 const UserSchema = new mongoose.Schema({
     // Schema definition here
-    sername: String,
+    username: String,
     password: String
 });
 
@@ -29,9 +37,11 @@ const CourseSchema = new mongoose.Schema({
 const Admin = mongoose.model('Admin', AdminSchema);
 const User = mongoose.model('User', UserSchema);
 const Course = mongoose.model('Course', CourseSchema);
+const PurchasedCourse = mongoose.model('PurchasedCourse', PurchasedCourseSchema);
 
 module.exports = {
     Admin,
     User,
-    Course
+    Course,
+    PurchasedCourse
 }

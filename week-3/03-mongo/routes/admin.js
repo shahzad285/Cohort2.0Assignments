@@ -1,13 +1,15 @@
 const { Router } = require("express");
 const adminMiddleware = require("../middleware/admin");
-const app = Router();
+
+const db = require("../db/index");
+const router = Router();
 
 // Admin Routes
 router.post('/signup', (req, res) => {
     // Implement admin signup logic
     var un = req.body.username;
     var pwd = req.body.password;
-    const admin = new Admin({
+    const admin = new db.Admin({
         username: un,
         password: pwd
     });
@@ -15,13 +17,36 @@ router.post('/signup', (req, res) => {
     res.json({ message: 'Admin created successfully' });
 });
 
-router.post('/courses', adminMiddleware, (req, res) => {
+router.post('/courses', adminMiddleware, async (req, res) => {
     // Implement course creation logic
+    let newId = 1;
+    let courses=await db.Course.find();
+        courses.forEach(element => {
+            if(newId<element.id)
+            {
+                newId=element.id;
+            }
+        });
+    
+    newId=newId+1;
+    const course = new db.Course({
+        title: req.body.title,
+        description: req.body.description,
+        price: req.body.price,
+        imageLink: req.body.imageLink,
+        id: newId
+
+    });
+    course.save();
+    res.json({ message: 'course created successfully' });
 
 });
 
 router.get('/courses', adminMiddleware, (req, res) => {
     // Implement fetching all courses logic
+    db.Course.find().then(courses => {
+        res.json(courses);
+    });
 });
 
-module.exports = app;
+module.exports = router;
