@@ -7,15 +7,14 @@
     <title>Document</title>
 </head>
 <script>
-     async function calculateInterest() {
-        const p=document.getElementById("principal").value;
-        const r=document.getElementById("rate").value;
-        const t=document.getElementById("time").value;
-      let data=fetch("http://localhost:3001/interest?principal="+p+"&rate="+r+"&time="+t).then(function(response){
-        return response.text()
-      }).then(function(ans){
-        document.getElementById("output").innerHTML=ans;
-      });
+    async function calculateInterest() {
+        const p = document.getElementById("principal").value;
+        const r = document.getElementById("rate").value;
+        const t = document.getElementById("time").value;
+        let response = await fetch("https://sum-server.100xdevs.com/interest?principal=" + p + "&rate=" + r + "&time=" + t);
+        let data = await response.json();
+         document.getElementById("output").innerHTML="Total amount "+data.total+" and interest is "+data.interest;
+        //document.getElementById("output").innerHTML = data;
     }
 </script>
 
