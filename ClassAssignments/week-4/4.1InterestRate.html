@@ -7,8 +7,15 @@
     <title>Document</title>
 </head>
 <script>
-    function calculateInterest() {
-
+     async function calculateInterest() {
+        const p=document.getElementById("principal").value;
+        const r=document.getElementById("rate").value;
+        const t=document.getElementById("time").value;
+      let data=fetch("http://localhost:3001/interest?principal="+p+"&rate="+r+"&time="+t).then(function(response){
+        return response.text()
+      }).then(function(ans){
+        document.getElementById("output").innerHTML=ans;
+      });
     }
 </script>
 
