@@ -32,13 +32,54 @@
       const added = [];
       const deleted = [];
       const updated = [];
+      let isElementMatched = false;
       // calculate these 3 arrays
       // call addTodo, removeTodo, updateTodo functions on each of the
       // elements
+      newTodos.forEach(element => {
+        oldTodoState.forEach(elem => {
+          if (elem.id == element.id) {
+            isElementMatched = true;
+            if (elem.title != element.title || elem.description != element.description) {
+              updated.push(element);
+            }
+          }
+        });
+        if (!isElementMatched) {
+          added.push(element);
+        }
+        isElementMatched = false;
+      });
+
+
+      oldTodoState.forEach(element => {
+        newTodos.forEach(elem => {
+          if (elem.id == element.id) {
+            isElementMatched = true;
+          }
+        });
+        if (!isElementMatched) {
+          deleted.push(element);
+        }
+        isElementMatched = false;
+      });
+
+      deleted.forEach(element => {
+        removeTodo(element);
+      });
+
+      added.forEach(element => {
+        addTodo(element);
+      });
+
+      updated.forEach(element => {
+        updateTodo(element, oldTodoState.find(obj => obj.id == element.id));
+      });
+
       oldTodoState = newTodos;
     }
 
-    function addTodo() {
+    function addTodos() {
       const title = document.getElementById("title").value;
       const description = document.getElementById("description").value;
       todoState.push({
@@ -54,7 +95,7 @@
 <body>
   <input type="text" id="title" placeholder="Todo title"></input> <br /><br />
   <input type="text" id="description" placeholder="Todo description"></input> <br /><br />
-  <button onclick="addTodo()">Add todo</button>
+  <button onclick="addTodos()">Add todo</button>
   <br /> <br />
 
   <div id="todos">
