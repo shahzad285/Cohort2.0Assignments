@@ -7,8 +7,22 @@
     let todoState = [];
     let oldTodoState = [];
 
-    function addTodo() {
+    function addTodo(todo) {
       // big function we wrote in the beginning
+      const parent=document.getElementById("todos");
+      const child=document.createElement("div");
+      const firstGrandChild=document.createElement("div");
+      const secondGrandChild=document.createElement("div");
+      const thirdGrandChild=document.createElement("button");
+      firstGrandChild.innerHTML=todo.title;
+      secondGrandChild.innerHTML=todo.description;
+      thirdGrandChild.innerHTML="Mark as done";
+      thirdGrandChild.setAttribute("onclick",`markAsDone(${todo.id})`);
+      child.appendChild(firstGrandChild);
+      child.appendChild(secondGrandChild);
+      child.appendChild(thirdGrandChild);
+      child.setAttribute("id",todo.id);
+      parent.appendChild(child);
     }
 
     function removeTodo(todo) {
