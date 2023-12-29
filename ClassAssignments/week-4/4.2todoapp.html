@@ -9,20 +9,26 @@
 
     function addTodo(todo) {
       // big function we wrote in the beginning
-      const parent=document.getElementById("todos");
-      const child=document.createElement("div");
-      const firstGrandChild=document.createElement("div");
-      const secondGrandChild=document.createElement("div");
-      const thirdGrandChild=document.createElement("button");
-      firstGrandChild.innerHTML=todo.title;
-      secondGrandChild.innerHTML=todo.description;
-      thirdGrandChild.innerHTML="Mark as done";
-      thirdGrandChild.setAttribute("onclick",`markAsDone(${todo.id})`);
+      const parent = document.getElementById("todos");
+      const child = document.createElement("div");
+      const firstGrandChild = document.createElement("div");
+      const secondGrandChild = document.createElement("div");
+      const thirdGrandChild = document.createElement("button");
+      firstGrandChild.innerHTML = todo.title;
+      secondGrandChild.innerHTML = todo.description;
+      thirdGrandChild.innerHTML = "Mark as done";
+      thirdGrandChild.setAttribute("onclick", `markAsDone(${todo.id})`);
       child.appendChild(firstGrandChild);
       child.appendChild(secondGrandChild);
       child.appendChild(thirdGrandChild);
-      child.setAttribute("id",todo.id);
+      child.setAttribute("id", todo.id);
       parent.appendChild(child);
+    }
+
+    function markAsDone(id){
+      const parent = document.getElementById(id);
+      let childButton=parent.childNodes[2];
+      childButton.innerHTML="Marked done";
     }
 
     function removeTodo(todo) {
@@ -90,7 +96,10 @@
         updateTodo(element, oldTodoState.find(obj => obj.id == element.id));
       });
 
-      oldTodoState = newTodos;
+      oldTodoState = [];
+      newTodos.forEach(element => {
+        oldTodoState.push(element);
+      });
     }
 
     function addTodos() {
