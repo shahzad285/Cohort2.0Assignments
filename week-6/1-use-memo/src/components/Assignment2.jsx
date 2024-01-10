@@ -6,7 +6,7 @@ import React, { useEffect, useState,useMemo } from "react";
 
 const words = ["hi", "my", "name", "is", "for", "to", "random", "word" ];
 const TOTAL_LINES = 1000;
-const ALL_WORDS = [];
+let ALL_WORDS = [];
 for (let i = 0; i < TOTAL_LINES; i++) {
     let sentence = "";
     for (let j = 0; j < words.length; j++) {
@@ -21,12 +21,25 @@ export function Assignment2() {
     const [sentences, setSentences] = useState(ALL_WORDS);
     const [filter, setFilter] = useState("");
 
+    function ReloadSentences()
+    {
+        ALL_WORDS = [];
+        for (let i = 0; i < TOTAL_LINES; i++) {
+            let sentence = "";
+            for (let j = 0; j < words.length; j++) {
+                sentence += (words[Math.floor(words.length * Math.random())])
+                sentence += " "
+            }
+            ALL_WORDS.push(sentence);
+        }
+        setSentences(ALL_WORDS);
+    }
     
     const filteredSentences = useMemo(()=>{
-        setSentences((s)=>setFressSentences());
         return sentences.filter(x => x.includes(filter))},[sentences,filter]);
 
     return <div>
+        <button onClick={ReloadSentences}> Reload Sentences</button><br/>
         <input type="text" onChange={(e) => {
             setFilter(e.target.value)
         }}></input>
@@ -36,17 +49,3 @@ export function Assignment2() {
     </div>
 }
 
-function setFressSentences()
-{
-    
-    const new_WORDS = [];
-    for (let i = 0; i < TOTAL_LINES; i++) {
-        let sentence = "";
-        for (let j = 0; j < words.length; j++) {
-            sentence += (words[Math.floor(words.length * Math.random())])
-            sentence += " "
-        }
-        new_WORDS.push(sentence);
-    }
-    return new_WORDS;
-}
