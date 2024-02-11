@@ -16,7 +16,7 @@ async function dropTablesIfExists() {
         await dropTables();
     }
     catch (err) {
-
+        console.log(err);
     }
     finally {
        await client.end();
@@ -29,7 +29,7 @@ async function createTablesExists() {
         await createTables();
     }
     catch (err) {
-
+        console.log(err);
     }
     finally { 
         await client.end();
@@ -42,7 +42,7 @@ async function addUser() {
         console.log(t);
     }
     catch (err) {
-
+        console.log(err);
     }
     finally { 
         await client.end();
